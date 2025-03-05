@@ -32,7 +32,7 @@
                                     </button>
                                 </div>
                                 <!-- Modal body -->
-                                <form action="{{ route('todo.store') }}" method="POST" class="p-4 md:p-5">
+                                <form action="{{ route('user.todo.store') }}" method="POST" class="p-4 md:p-5">
                                     @csrf
                                     <div class="grid gap-4 mb-4 grid-cols-1">
                                         <div class="col-span-1">
@@ -98,7 +98,7 @@
                                                         </button>
                                                     </div>
                                                     <!-- Modal body -->
-                                                    <form action="{{ route('todo.update', $todo->id) }}" method="POST" class="p-4 md:p-5">
+                                                    <form action="{{ route('user.todo.update', $todo->id) }}" method="POST" class="p-4 md:p-5">
                                                         @csrf
                                                         @method('PUT')
                                                         <div class="grid gap-4 mb-4 grid-cols-1">

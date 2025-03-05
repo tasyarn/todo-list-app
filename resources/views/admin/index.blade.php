@@ -57,6 +57,7 @@
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead class="text-xs text-white uppercase bg-gray-700">
                                 <tr>
+                                    <th scope="col" class="px-6 py-3 text-center">User</th>
                                     <th scope="col" class="px-6 py-3 text-center">Task</th>
                                     <th scope="col" class="px-6 py-3 text-center">Status</th>
                                     <th scope="col" colspan="2" class="py-3 text-center">Action</th>
@@ -65,6 +66,7 @@
                             <tbody>
                                 @foreach ($todolists as $todo)
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 text-center">{{ $todo->user->name ?? 'Unknown' }}</td>
                                     <td class="px-6 py-4 text-center">{{ $todo->task }}</td>
                                     <td class="px-6 py-4 text-center">
                                         @if ($todo->is_completed)

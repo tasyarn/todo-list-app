@@ -25,9 +25,11 @@ require __DIR__.'/auth.php';
 //user
 Route::middleware(['auth','userMiddleware'])->group(function(){
     Route::get('dashboard',[UserController::class, 'index'])->name('dashboard');
+    Route::post('/user/todolist', [TodolistController::class, 'store'])->name('user.todo.store');
+    Route::get('/user/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('user.todo.edit'); // Form edit todolist
+    Route::put('/user/todolist/{id}', [TodolistController::class, 'update'])->name('user.todo.update'); // Update todolist
 });
 
-//admin
 // ADMIN ROUTE (Admin bisa CRUD semua tugas)
 Route::middleware(['auth', 'adminMiddleware'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.index');
