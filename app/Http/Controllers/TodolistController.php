@@ -36,25 +36,6 @@ class TodolistController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'task' => 'required|string|max:255',
-            'is_completed' => 'boolean'
-        ]);
-
-        $todo = Todolist::create([
-            'user_id' => Auth::id(),
-            'task' => $request->task,
-            'is_completed' => $request->is_completed ?? false
-        ]);
-
-        return response()->json(['message' => 'Task created successfully', 'task' => $todo], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $todo = Todolist::findOrFail($id);
@@ -64,6 +45,21 @@ class TodolistController extends Controller
         }
 
         return response()->json($todo);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'task' => 'required|string|max:255',
+        ]);
+
+        Todolist::create([
+            'task' => $request->task,
+            'is_completed' => $request->has('is_completed') ? 1 : 0,
+            'user_id' => auth()->id(), // Simpan user_id dari user yang login
+        ]);
+
+        return redirect()->back()->with('success', 'Task created successfully!');
     }
 
     /**
@@ -90,9 +86,18 @@ class TodolistController extends Controller
             'is_completed' => 'sometimes|boolean'
         ]);
 
-        $todo->update($request->only('task', 'is_completed'));
+        // Ambil data yang dikirim
+        $data = $request->only('task', 'is_completed');
 
-        return response()->json(['message' => 'Task updated successfully', 'task' => $todo]);
+        // Jika `is_completed` tidak ada di request, berarti nilainya harus diatur ulang ke `0`
+        if (!$request->has('is_completed')) {
+            $data['is_completed'] = 0;
+        }
+
+        $todo->update($data);
+
+        return redirect()->back()->with('success', 'Task updated successfully!');
+
     }
 
     /**
@@ -102,12 +107,8 @@ class TodolistController extends Controller
     {
         $todo = Todolist::findOrFail($id);
 
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $todo->delete();
 
-        return response()->json(['message' => 'Task deleted successfully']);
+        return redirect()->back()->with('success', 'Task deleted successfully!');
     }
 }

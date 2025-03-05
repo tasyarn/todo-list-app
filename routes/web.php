@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TodolistController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,6 +28,12 @@ Route::middleware(['auth','userMiddleware'])->group(function(){
 });
 
 //admin
-Route::middleware(['auth','adminMiddleware'])->group(function(){
-    Route::get('/admin/dashboard',[AdminController::class, 'index'])->name('admin.index');
+// ADMIN ROUTE (Admin bisa CRUD semua tugas)
+Route::middleware(['auth', 'adminMiddleware'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.index');
+    Route::post('/admin/todolist', [TodolistController::class, 'store'])->name('todo.store');
+    Route::get('/admin/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('todo.edit'); // Form edit todolist
+    Route::put('/admin/todolist/{id}', [TodolistController::class, 'update'])->name('todo.update'); // Update todolist
+    Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroy'])->name('todo.destroy'); // Hapus todolist
 });
+
