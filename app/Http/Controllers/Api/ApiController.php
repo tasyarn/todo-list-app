@@ -16,6 +16,7 @@ class ApiController extends Controller
             "name" => "required|string",
             "email" => "required|email|unique:users,email",
             "password" => "required"
+
         ]);
 
         // Buat user dengan role default "admin"
@@ -23,7 +24,7 @@ class ApiController extends Controller
             "name" => $request->name,
             "email" => $request->email,
             "password" => bcrypt($request->password),
-            "userRole" => "admin" // Set default userRole sebagai "admin"
+            "userRole" => "user" // Set default userRole sebagai "admin"
         ]);
 
         return response()->json([

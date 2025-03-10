@@ -10,6 +10,6 @@ class AdminController extends Controller
     public function index()
     {
         $todolists = Todolist::with('user')->get();
-        return view('todolist.index', compact('todolists'));
+        return view('admin.index', compact('todolists'));
     }
 }

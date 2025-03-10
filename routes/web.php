@@ -22,20 +22,33 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+// //user
+//     Route::get('dashboard',[UserController::class, 'index'])->name('dashboard');
+//     Route::post('/user/todolist', [TodolistController::class, 'store'])->name('user.todo.store');
+//     Route::get('/user/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('user.todo.edit');
+//     Route::put('/user/todolist/{id}', [TodolistController::class, 'update'])->name('user.todo.update');
+
+
+// //admin
+// Route::middleware(['auth', 'adminMiddleware'])->group(function () {
+//     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.index');
+//     Route::post('/admin/todolist', [TodolistController::class, 'store'])->name('todo.store');
+//     Route::get('/admin/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('todo.edit');
+//     Route::put('/admin/todolist/{id}', [TodolistController::class, 'update'])->name('todo.update');
+//     Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroy'])->name('todo.destroy');
+// });
+
 //user
-Route::middleware(['auth','userMiddleware'])->group(function(){
-    Route::get('dashboard',[UserController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'role_or_permission:user|create todolist|read todolist|update todolist'])->group(function () {
     Route::post('/user/todolist', [TodolistController::class, 'store'])->name('user.todo.store');
-    Route::get('/user/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('user.todo.edit'); // Form edit todolist
-    Route::put('/user/todolist/{id}', [TodolistController::class, 'update'])->name('user.todo.update'); // Update todolist
+    Route::get('dashboard',[UserController::class, 'index'])->name('dashboard');
+    Route::put('/user/todolist/{id}', [TodolistController::class, 'update'])->name('user.todo.update');
 });
 
-// ADMIN ROUTE (Admin bisa CRUD semua tugas)
-Route::middleware(['auth', 'adminMiddleware'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.index');
+//admin
+Route::middleware(['auth', 'role_or_permission:admin|create todolist|read todolist|update todolist|delete todolist'])->group(function () {
     Route::post('/admin/todolist', [TodolistController::class, 'store'])->name('todo.store');
-    Route::get('/admin/todolist/{id}/edit', [TodolistController::class, 'edit'])->name('todo.edit'); // Form edit todolist
-    Route::put('/admin/todolist/{id}', [TodolistController::class, 'update'])->name('todo.update'); // Update todolist
-    Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroy'])->name('todo.destroy'); // Hapus todolist
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.index');
+    Route::put('/admin/todolist/{id}', [TodolistController::class, 'update'])->name('todo.update');
+    Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroy'])->name('todo.destroy');
 });
-

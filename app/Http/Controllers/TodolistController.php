@@ -25,28 +25,6 @@ class TodolistController extends Controller
         return response()->json($todolists);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function show($id)
-    {
-        $todo = Todolist::findOrFail($id);
-
-        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return response()->json($todo);
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -60,14 +38,6 @@ class TodolistController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Task created successfully!');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Todolist $todolist)
-    {
-        //
     }
 
     /**

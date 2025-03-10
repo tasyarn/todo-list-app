@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Application;
-use App\Http\Middleware\UserMiddleware;
-use App\Http\Middleware\AdminMiddleware;
 use Tymon\JWTAuth\Http\Middleware\Authenticate;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,8 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'userMiddleware' => UserMiddleware::class,
-            'adminMiddleware' => AdminMiddleware::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
         ]);
     })
