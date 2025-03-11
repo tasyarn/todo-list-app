@@ -2,84 +2,73 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Validation\Rules\Password;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class ApiController extends Controller
 {
     //register
-    public function register(Request $request){
-        $request->validate([
-            "name" => "required|string",
-            "email" => "required|email|unique:users,email",
-            "password" => "required"
-
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'role' => ['required', 'in:user,admin'], // role bisa pilih sendiri
         ]);
 
-        // Buat user dengan role default "admin"
-        $user = User::create([
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => bcrypt($request->password),
-            "userRole" => "user" // Set default userRole sebagai "admin"
+        $user = \App\Models\User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
+
+        // Assign role sesuai pilihan
+        $user->assignRole($validated['role']);
 
         return response()->json([
-            "status" => true,
-            "message" => "User registered successfully",
-            "data" => $user
-        ]);
+            'status' => true,
+            'message' => 'User registered successfully',
+            'user' => $user
+        ], 201);
     }
 
+
     //login
-    public function login(Request $request){
-        $request->validate([
-            "email" => "required|email",
-            "password" => "required",
-        ]);
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
 
-        // Cari user berdasarkan email
-        $user = User::where("email", $request->email)->first();
-
-        // Jika user tidak ditemukan
-        if (!$user) {
+        if (!Auth::attempt($credentials)) {
             return response()->json([
-                "status" => false,
-                "message" => "Email tidak terdaftar",
-            ], 404);
-        }
-
-        // Cek apakah user adalah admin
-        if ($user->userRole !== "admin") {
-            return response()->json([
-                "status" => false,
-                "message" => "Akses ditolak. Anda bukan admin.",
-            ], 403);
-        }
-
-        // Cek password
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                "status" => false,
-                "message" => "Password salah",
+                'status' => false,
+                'message' => 'Invalid credentials'
             ], 401);
         }
 
-        // Buat JWT Token
+        $user = Auth::user();
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
-            "status" => true,
-            "message" => "Admin logged in successfully",
-            "token" => $token
+            'status' => true,
+            'message' => 'Login successful',
+            'token' => $token,
+            'user' => $user
         ]);
     }
 
     //logout
-    public function logout(){
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
 
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

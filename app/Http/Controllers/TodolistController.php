@@ -16,13 +16,17 @@ class TodolistController extends Controller
      */
     public function index()
     {
-        if (Auth::user()->role === 'admin') {
+        if (auth()->user()->hasRole('admin')) {
             $todolists = Todolist::all();
         } else {
-            $todolists = Todolist::where('user_id', Auth::id())->get();
+            $todolists = Todolist::where('user_id', auth()->id())->get();
         }
 
-        return response()->json($todolists);
+        return response()->json([
+            'status' => true,
+            'message' => 'Todolist loaded successfully',
+            'data' => $todolists
+        ]);
     }
 
     public function store(Request $request)
@@ -39,6 +43,26 @@ class TodolistController extends Controller
 
         return redirect()->back()->with('success', 'Task created successfully!');
     }
+
+    public function storeAPI(Request $request)
+    {
+        $request->validate([
+            'task' => 'required|string|max:255',
+        ]);
+
+        $todolist = Todolist::create([
+            'task' => $request->task,
+            'is_completed' => $request->has('is_completed') ? 1 : 0,
+            'user_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Todolist created successfully',
+            'data' => $todolist
+        ]);
+    }
+
 
     /**
      * Update the specified resource in storage.
@@ -70,6 +94,35 @@ class TodolistController extends Controller
 
     }
 
+    public function updateAPI(Request $request, $id)
+    {
+        $todo = Todolist::findOrFail($id);
+
+        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'task' => 'sometimes|string|max:255',
+            'is_completed' => 'sometimes|boolean'
+        ]);
+
+        $data = $request->only('task', 'is_completed');
+
+        // Jika `is_completed` tidak dikirim, isi default jadi 0
+        if (!$request->has('is_completed')) {
+            $data['is_completed'] = 0;
+        }
+
+        $todo->update($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Todolist updated successfully',
+            'data' => $todo
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -80,5 +133,25 @@ class TodolistController extends Controller
         $todo->delete();
 
         return redirect()->back()->with('success', 'Task deleted successfully!');
+    }
+
+    public function destroyAPI($id)
+    {
+        $todo = Todolist::findOrFail($id);
+
+        // Tambahan keamanan: hanya admin atau pemilik task yang bisa hapus
+        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $todo->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Task deleted successfully'
+        ]);
     }
 }

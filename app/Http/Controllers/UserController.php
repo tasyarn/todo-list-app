@@ -14,4 +14,16 @@ class UserController extends Controller
 
         return view('dashboard', compact('todolists'));
     }
+
+    public function indexAPI()
+{
+    $todolists = Todolist::where('user_id', Auth::id())->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Data ditemukan',
+        'todolist' => $todolists
+    ]);
+}
+
 }

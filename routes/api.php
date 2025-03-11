@@ -1,16 +1,27 @@
 <?php
 
-use App\Http\Controllers\Api\ApiController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TodolistController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+// api public
+Route::post('/register', [ApiController::class, 'register']);
+Route::post('/login', [ApiController::class, 'login']);
+Route::middleware('auth:api')->post('/logout', [ApiController::class, 'logout']);
 
-Route::post("register", [ApiController::class, "register"]);
-Route::post("login", [ApiController::class, "login"]);
-Route::middleware(['jwt.auth'])->get('/admin/dashboard', function() {
-    return response()->json(['message' => 'Welcome Admin']);
+// user
+Route::middleware(['jwt.auth', 'role_or_permission:user|create todolist|read todolist|update todolist'])->group(function () {
+    Route::get('/user/dashboard', [TodolistController::class, 'index']);
+    Route::post('/user/todolist', [TodolistController::class, 'storeAPI']);
+    Route::put('/user/todolist/{id}', [TodolistController::class, 'updateAPI']);
 });
 
+// admin
+Route::middleware(['jwt.auth', 'role_or_permission:admin|create todolist|read todolist|update todolist|delete todolist'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+    Route::post('/admin/todolist', [TodolistController::class, 'storeAPI']);
+    Route::put('/admin/todolist/{id}', [TodolistController::class, 'updateAPI']);
+    Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroyAPI']);
+});
