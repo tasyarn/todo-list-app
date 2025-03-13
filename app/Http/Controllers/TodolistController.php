@@ -71,7 +71,7 @@ class TodolistController extends Controller
     {
         $todo = Todolist::findOrFail($id);
 
-        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
+        if (auth()->user()->hasRole('admin') && $todo->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -98,7 +98,7 @@ class TodolistController extends Controller
     {
         $todo = Todolist::findOrFail($id);
 
-        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
+        if (auth()->user()->hasRole('admin') && $todo->user_id !== Auth::id()) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -140,7 +140,7 @@ class TodolistController extends Controller
         $todo = Todolist::findOrFail($id);
 
         // Tambahan keamanan: hanya admin atau pemilik task yang bisa hapus
-        if (Auth::user()->role !== 'admin' && $todo->user_id !== Auth::id()) {
+        if (auth()->user()->hasRole('admin') && $todo->user_id !== Auth::id()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized'
