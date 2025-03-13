@@ -20,7 +20,7 @@ Route::middleware(['jwt.auth', 'role_or_permission:user|create todolist|read tod
 
 // admin
 Route::middleware(['jwt.auth', 'role_or_permission:admin|create todolist|read todolist|update todolist|delete todolist'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+    Route::get('/admin/dashboard', [TodolistController::class, 'index']);
     Route::post('/admin/todolist', [TodolistController::class, 'storeAPI']);
     Route::put('/admin/todolist/{id}', [TodolistController::class, 'updateAPI']);
     Route::delete('/admin/todolist/{id}', [TodolistController::class, 'destroyAPI']);
